@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VTBank</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
+<script>
+(function(){var t=null;try{t=localStorage.getItem('theme')}catch(e){}
+if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<style>
+:root{
+  --bg:#f5f1e8;--card:#fffdf9;--text:#171a22;--muted:#767b88;--line:#e4dfd2;--input:#faf7f0;
+  --accent:#1f5fff;--link:#1f5fff;--grad:linear-gradient(135deg,#1442d8,#3d8bff);--btn-text:#fff;
+  --ok:#0f8a5f;--err:#d63a3a;--glow:rgba(31,95,255,.11);--glow2:rgba(214,170,90,.2);
+  --shadow:0 28px 60px -28px rgba(70,50,10,.32),0 2px 8px rgba(70,50,10,.07);
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#080e1f;--card:#0f1a33;--text:#e8eefc;--muted:#8793b2;--line:#1d2b4d;--input:#0a1329;
+    --accent:#5aa2ff;--link:#6aaeff;--grad:linear-gradient(135deg,#3d7bff,#2fe0d4);--btn-text:#03101f;
+    --ok:#3fe3a6;--err:#ff6b7d;--glow:rgba(90,162,255,.16);--glow2:rgba(47,224,212,.14);
+    --shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 1px rgba(90,162,255,.08);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#080e1f;--card:#0f1a33;--text:#e8eefc;--muted:#8793b2;--line:#1d2b4d;--input:#0a1329;
+  --accent:#5aa2ff;--link:#6aaeff;--grad:linear-gradient(135deg,#3d7bff,#2fe0d4);--btn-text:#03101f;
+  --ok:#3fe3a6;--err:#ff6b7d;--glow:rgba(90,162,255,.16);--glow2:rgba(47,224,212,.14);
+  --shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 1px rgba(90,162,255,.08);color-scheme:dark;
+}
+[hidden]{display:none!important}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;min-height:100%;display:flex;flex-direction:column;
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--text);
+  background:radial-gradient(55% 40% at 90% 0%,var(--glow),transparent 70%),radial-gradient(50% 40% at 0% 100%,var(--glow2),transparent 70%),var(--bg);
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);transition:background-color .45s}
+body,.top,.card,.field,input,.theme,.nav,.sheet,.nb,.back{transition:background-color .45s,border-color .35s,color .45s,box-shadow .35s}
+button{font-family:inherit}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--grad);display:grid;place-items:center}
+.logo svg{width:18px;height:18px;fill:none;stroke:var(--btn-text);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.theme{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;padding:0}
+.theme svg{position:absolute;inset:0;margin:auto;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.theme .sun{opacity:0;transform:rotate(-90deg) scale(.4)}
+:root[data-theme="dark"] .theme .moon{opacity:0;transform:rotate(90deg) scale(.4)}
+:root[data-theme="dark"] .theme .sun{opacity:1;transform:none;color:var(--accent)}
+.theme:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+#auth{flex:1;display:grid;place-items:center;padding:8px 16px 32px}
+.card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadow)}
+.progress{height:4px;border-radius:4px;background:var(--line);margin:0 0 26px;overflow:hidden}
+.progress i{display:block;height:100%;width:50%;border-radius:4px;background:var(--grad);transition:width .5s cubic-bezier(.3,.9,.3,1)}
+h1,h2{margin:0 0 8px;line-height:1.15;letter-spacing:-.03em;font-weight:800}
+h1{font-size:27px}h2{font-size:28px}
+.sub{margin:0 0 22px;color:var(--muted);font-size:15px;line-height:1.5}
+label{display:block;font-size:13px;font-weight:700;margin:0 0 8px}
+.field{display:flex;align-items:center;gap:6px;height:56px;padding:0 14px 0 16px;border:1.5px solid var(--line);border-radius:16px;background:var(--input)}
+.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--glow)}
+.field .at{color:var(--accent);font-weight:800;font-size:18px}
+.field input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);font-family:inherit;font-size:16px;font-weight:600}
+.field input::placeholder{color:var(--muted);font-weight:500}
+.field.is-ok{border-color:var(--ok)}
+.field.is-err{border-color:var(--err);box-shadow:0 0 0 4px rgba(214,58,58,.18);box-shadow:0 0 0 4px color-mix(in srgb,var(--err) 18%,transparent);animation:shake .35s}
+.st{width:22px;height:22px;display:grid;place-items:center}
+.st>*{display:none}
+.is-load .st .sp,.is-ok .st .okk,.is-err .st .bad{display:block}
+.st svg{width:22px;height:22px;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.okk{stroke:var(--ok)}.bad{stroke:var(--err)}
+.sp{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);animation:spin .7s linear infinite}
+.eye{border:0;background:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:8px;display:grid}
+.eye svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eye .slash{opacity:0;transition:opacity .2s}.eye.on .slash{opacity:1}
+.msg{min-height:22px;margin:9px 2px 0;font-size:13.5px;font-weight:600;color:var(--muted);transition:color .25s}
+.msg.ok{color:var(--ok)}.msg.err{color:var(--err)}
+.gap{height:14px}
+.btn{position:relative;width:100%;height:54px;margin-top:16px;border:0;border-radius:16px;cursor:pointer;background:var(--grad);color:var(--btn-text);font-family:inherit;font-weight:800;font-size:16px;letter-spacing:-.01em;box-shadow:0 14px 28px -14px var(--accent);transition:transform .2s,opacity .3s,box-shadow .3s,filter .3s}
+.btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn .sp{display:none;position:absolute;inset:0;margin:auto;border-color:rgba(0,0,0,.18);border-top-color:var(--btn-text)}
+.btn.busy .lbl{opacity:0}.btn.busy .sp{display:block}
+.alt{margin:18px 0 0;text-align:center;font-size:13.5px;color:var(--muted)}
+.lnk{border:0;background:none;padding:0;color:var(--link);font-weight:700;font-size:13.5px;cursor:pointer}
+.lnk:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:7px 12px 7px 8px;border:1px solid var(--line);border-radius:999px;background:var(--input);color:var(--text);font-weight:700;font-size:14px;cursor:pointer}
+.back:hover{border-color:var(--accent)}
+.back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.enter{animation:in .4s cubic-bezier(.2,.8,.2,1)}
+.step.leave{opacity:0;transform:translateX(-22px);transition:opacity .22s,transform .22s}
+
+#app{width:100%;max-width:480px;margin:0 auto;padding:6px 16px 120px}
+.add{width:100%;height:54px;margin-bottom:16px;border:1.5px dashed var(--accent);border-radius:18px;background:var(--glow);color:var(--accent);font-weight:800;font-size:16px;cursor:pointer;transition:transform .2s}
+.add:hover{transform:translateY(-2px)}
+.empty{margin:30px 8px;text-align:center;color:var(--muted);font-size:15px;line-height:1.5}
+.cc{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:100%;aspect-ratio:1.75;margin:0 0 14px;padding:18px 20px;border:0;border-radius:24px;color:#fff;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 22px 34px -22px rgba(10,20,60,.7);transition:transform .25s}
+button.cc:hover{transform:translateY(-3px)}
+.cc.flat{cursor:default;margin:0}
+.cc::after{content:"";position:absolute;right:-60px;top:-70px;width:210px;height:210px;border-radius:50%;background:rgba(255,255,255,.14);pointer-events:none}
+.cc .r{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700}
+.cc .r b{font-size:18px;letter-spacing:-.02em}
+.chip{width:38px;height:28px;border-radius:7px;background:rgba(255,255,255,.38)}
+.cc.new{animation:pop .6s cubic-bezier(.2,1.2,.3,1)}
+.t0{background:linear-gradient(135deg,#1442d8,#3d8bff)}.t1{background:linear-gradient(135deg,#262d44,#0a0d17)}
+.t2{background:linear-gradient(135deg,#7a2cf0,#d45bff)}.t3{background:linear-gradient(135deg,#087f63,#2fd9a4)}
+.t4{background:linear-gradient(135deg,#e0502a,#ff9a3c)}.t5{background:linear-gradient(135deg,#0f6dbd,#18c3e8)}
+.t6{background:linear-gradient(135deg,#c21f5b,#ff6a8a)}
+.rows div{display:flex;justify-content:space-between;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line);font-size:15px}
+.rows div:last-child{border:0}
+.rows span{color:var(--muted);font-weight:600}.rows b{font-weight:800;text-align:right;word-break:break-all}
+.tx{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.ti{width:42px;height:42px;flex:none;border-radius:14px;display:grid;place-items:center;background:var(--glow);color:var(--accent)}
+.ti svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.m{flex:1;min-width:0}.m b{display:block;font-size:15px}.m span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.a{font-weight:800;white-space:nowrap}.a.in{color:var(--ok)}
+.ava{width:84px;height:84px;margin:8px auto 12px;border-radius:50%;background:var(--grad);color:var(--btn-text);display:grid;place-items:center;font-size:34px;font-weight:800}
+.pn{text-align:center;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.pbox{margin:20px 0 8px;padding:4px 16px;background:var(--card);border:1px solid var(--line);border-radius:20px}
+.ghost{display:block;width:100%;margin-top:6px;border:0;background:none;color:var(--muted);font-weight:700;font-size:15px;cursor:pointer;padding:12px}
+.ghost:hover{color:var(--text)}.ghost.danger{color:var(--err)}
+
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:8;width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -12px 30px -20px rgba(20,30,60,.45)}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border:0;border-radius:16px;background:none;color:var(--muted);font-weight:700;font-size:11.5px;cursor:pointer}
+.nb svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nb.on{color:var(--accent);background:var(--glow)}
+.bg{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,10,25,.55);animation:fade .25s}
+.sheet{width:100%;max-width:480px;max-height:94%;overflow:auto;padding:12px 20px calc(18px + env(safe-area-inset-bottom,0px));background:var(--card);border-radius:28px 28px 0 0;animation:up .35s cubic-bezier(.2,.9,.3,1)}
+.grab{width:40px;height:5px;margin:0 auto 16px;border-radius:5px;background:var(--line)}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:30;max-width:calc(100% - 32px);padding:13px 18px;border-radius:14px;background:var(--text);color:var(--card);font-weight:700;font-size:14.5px;text-align:center;opacity:0;transform:translate(-50%,20px);pointer-events:none;transition:opacity .3s,transform .3s;box-shadow:0 14px 30px -10px rgba(0,0,0,.4)}
+.toast.err{background:var(--err);color:#fff}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.cc .bl{position:relative;z-index:1;display:block;font-size:27px;font-weight:800;letter-spacing:-.02em}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:20px;background:var(--input);border:1px solid var(--line);border-radius:16px}
+.seg button{border:0;border-radius:12px;padding:11px 6px;background:none;color:var(--muted);font-weight:700;font-size:13.5px;line-height:1.25;cursor:pointer;transition:background-color .3s,color .3s}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 10px -4px rgba(0,0,0,.35)}
+.field select{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);font-family:inherit;font-size:16px;font-weight:600}
+.field select option{background:var(--card);color:var(--text)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.h3{margin:26px 0 6px;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.cr{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--text);text-align:left;cursor:pointer;transition:border-color .25s,transform .2s}
+.cr:hover{border-color:var(--accent);transform:translateY(-1px)}
+.cr svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.srch{margin-bottom:12px}
+.srch svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round}
+.clist{max-height:48vh;overflow:auto;margin:0 -4px 6px;padding:0 4px}
+.ci{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;margin-bottom:6px;padding:13px 14px;border:1px solid transparent;border-radius:14px;background:none;color:var(--text);font-size:15px;text-align:left;cursor:pointer}
+.ci:hover{background:var(--input)}
+.ci.on{border-color:var(--accent);background:var(--glow)}
+.ci b{font-weight:700}.ci em{font-style:normal;font-weight:800;font-size:13px;color:var(--accent)}
+.pr{font-weight:800;font-size:16px;text-align:right;white-space:nowrap}
+.pr s{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.ci small{display:block;margin-top:2px;font-size:12.5px;font-weight:700;color:var(--ok)}
+.note{margin:12px 2px 4px;color:var(--muted);font-size:13px;line-height:1.5}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes in{from{opacity:0;transform:translateX(24px)}}
+@keyframes shake{25%{transform:translateX(-5px)}60%{transform:translateX(5px)}100%{transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(26px) rotate(-3deg) scale(.93)}}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes fade{from{opacity:0}}
+@media (max-width:420px){.card{padding:22px;border-radius:24px}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="logo"><svg viewBox="0 0 24 24"><path d="M5 6l7 12 7-12"/></svg></span>VTBank</div>
+  <button class="theme" id="theme" type="button" aria-label="Переключить тему" title="Сменить тему">
+    <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</header>
+
+<main id="auth"><div class="card">
+  <div class="progress"><i id="bar"></i></div>
+
+  <section class="step" id="s1">
+    <h1>Откройте счёт в VTBank</h1>
+    <p class="sub">Выберите @username — по нему вам смогут отправить перевод.</p>
+    <label for="user">Ваш @username</label>
+    <div class="field" id="uf">
+      <span class="at">@</span>
+      <input id="user" type="text" placeholder="username" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false">
+      <span class="st"><i class="sp"></i>
+        <svg class="okk" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <svg class="bad" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+    </div>
+    <div class="msg" id="umsg" aria-live="polite"></div>
+    <button class="btn" id="next" type="button" hidden>Продолжить</button>
+    <p class="alt">Уже есть аккаунт? <button class="lnk" id="toLogin" type="button">Войти</button></p>
+  </section>
+
+  <section class="step" id="s2" hidden>
+    <button class="back" id="back" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span id="chip"></span></button>
+    <h1>Придумайте пароль</h1>
+    <p class="sub">Минимум 6 символов. Никому его не сообщайте.</p>
+    <label for="p1">Придумайте пароль</label>
+    <div class="field" id="f1">
+      <input id="p1" type="password" placeholder="Пароль" autocomplete="new-password">
+      <button class="eye" type="button" data-for="p1" aria-label="Показать пароль"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
+    </div>
+    <div class="gap"></div>
+    <label for="p2">Повторите пароль</label>
+    <div class="field" id="f2">
+      <input id="p2" type="password" placeholder="Ещё раз тот же пароль" autocomplete="new-password">
+      <button class="eye" type="button" data-for="p2" aria-label="Показать пароль"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
+    </div>
+    <div class="msg" id="pmsg" aria-live="polite"></div>
+    <button class="btn" id="create" type="button" disabled><span class="lbl">Войти в VTBank</span><i class="sp"></i></button>
+  </section>
+
+  <section class="step" id="sl" hidden>
+    <h1>С возвращением</h1>
+    <p class="sub">Войдите в свой аккаунт VTBank.</p>
+    <label for="lu">Ваш @username</label>
+    <div class="field" id="lf1"><span class="at">@</span>
+      <input id="lu" type="text" placeholder="username" maxlength="20" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
+    <div class="gap"></div>
+    <label for="lp">Пароль</label>
+    <div class="field" id="lf2">
+      <input id="lp" type="password" placeholder="Ваш пароль" autocomplete="current-password">
+      <button class="eye" type="button" data-for="lp" aria-label="Показать пароль"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
+    </div>
+    <div class="msg" id="lmsg" aria-live="polite"></div>
+    <button class="btn" id="login" type="button" disabled><span class="lbl">Войти в VTBank</span><i class="sp"></i></button>
+    <p class="alt">Нет аккаунта? <button class="lnk" id="toReg" type="button">Зарегистрироваться</button></p>
+  </section>
+</div></main>
+
+<main id="app" hidden><div id="view"></div></main>
+
+<nav class="nav" id="nav" hidden>
+  <button class="nb on" data-t="cards" type="button"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>Карточки</button>
+  <button class="nb" data-t="send" type="button"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg>Перевести</button>
+  <button class="nb" data-t="hist" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>История</button>
+  <button class="nb" data-t="prof" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Профиль</button>
+</nav>
+
+<div class="bg" id="bg" hidden><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+/* ===== Настройки ===== */
+var FIXED={admin:'adminpasswordveytow1001',winstone:'1win2sto3ne4'}; /* пароли встроенных аккаунтов */
+var START_BONUS=200; /* стартовый капитал на первую карту, ₽ */
+var COMMISSION=0.01; /* комиссия за переводы для обычных аккаунтов (0.01 = 1%) */
+var CARD_LIMIT=7,CARD_LIMIT_PLUS=15; /* лимит карт: обычный / с подпиской */
+/* тарифы VTBank Plus: p — цена в USD, d — скидка в % (только на первую покупку), m — месяцев (0 = навсегда) */
+var PLANS=[{n:'1 месяц',m:1,p:10,d:0},{n:'3 месяца',m:3,p:30,d:5},{n:'Полгода',m:6,p:60,d:10},{n:'Год',m:12,p:120,d:10},{n:'Навсегда',m:0,p:200,d:15}];
+var RESERVED=['admin','alex','vtbank'];
+var $=function(s){return document.querySelector(s)};
+var root=document.documentElement,db,me=null,tab='cards',sel=0,mode='send',newIdx=-1;
+
+/* ---------- данные ---------- */
+try{db=JSON.parse(localStorage.getItem('vtbank_db'))}catch(e){db=null}
+if(!db||!db.users)db={users:{}};
+if(!db.users.admin)db.users.admin={cards:[],tx:[],inf:true,created:Date.now()};
+Object.keys(db.users).forEach(function(n){
+  var u=db.users[n];
+  u.cards.forEach(function(c,i){
+    if(c.bal===undefined)c.bal=(i===0&&!u.inf?u.bal||0:0);
+    if(c.inf===undefined)c.inf=!!u.inf;
+    if(!c.pwd)c.pwd=rnd(4);
+    if(!c.cur)c.cur='RUB';
+  });
+  delete u.bal;
+  if(u.bonus===undefined)u.bonus=!u.cards.length&&!u.inf;
+  u.tx=u.tx.filter(function(x){return !x.who}).map(function(x){if(x.tail)x.card=x.tail;return x});
+});
+if(db.claimed===undefined){ /* миграция: бонус остаётся только у самого раннего аккаунта */
+  var regs=Object.keys(db.users).filter(function(n){return !Object.prototype.hasOwnProperty.call(FIXED,n)}).sort(function(a,b){return db.users[a].created-db.users[b].created});
+  db.claimed=regs[0]||'';
+  regs.slice(1).forEach(function(n){db.users[n].bonus=false});
+  save();
+}
+if(!Object.prototype.hasOwnProperty.call(db.users,'winstone')){
+  var wc=mkCard(5000,false);
+  db.users.winstone={pass:FIXED.winstone,cards:[wc],tx:[{t:'card',card:wc.num.slice(-4),ts:Date.now()}],inf:false,bonus:false,created:Date.now()};
+  save();
+}
+function save(){try{localStorage.setItem('vtbank_db',JSON.stringify(db))}catch(e){}}
+function has(n){return Object.prototype.hasOwnProperty.call(db.users,n)}
+function taken(n){return RESERVED.indexOf(n)>-1||has(n)}
+function passOf(n){return Object.prototype.hasOwnProperty.call(FIXED,n)?FIXED[n]:db.users[n].pass}
+function U(){return db.users[me]}
+function fmt(n){return n.toLocaleString(LOC[lang],{maximumFractionDigits:2})}
+function money(u){return u.inf?'∞ ₽':fmt(u.bal)+' ₽'}
+function when(ts){return new Date(ts).toLocaleString(LOC[lang],{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}
+function spaced(n){return n.replace(/(\d{4})(?=\d)/g,'$1 ')}
+function rnd(k){var s='';for(var i=0;i<k;i++)s+=Math.floor(Math.random()*10);return s}
+function clean(v){return v.toLowerCase().replace(/[^a-z0-9_]/g,'').replace(/^[^a-z]+/,'').slice(0,20)}
+function setField(el,s){el.classList.remove('is-load','is-ok','is-err');if(s)el.classList.add('is-'+s)}
+function setMsg(el,k,t){el.className='msg'+(k?' '+k:'');el.textContent=t}
+var tt;
+function toast(t,k){var el=$('#toast');el.textContent=t;el.className='toast '+(k||'')+' show';clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show')},2800)}
+
+/* ---------- тема ---------- */
+$('#theme').addEventListener('click',function(){
+  var n=root.getAttribute('data-theme')==='dark'?'light':'dark';
+  root.setAttribute('data-theme',n);
+  try{localStorage.setItem('theme',n)}catch(e){}
+});
+
+/* ---------- шаги входа ---------- */
+var cur='s1',moving=false;
+function show(id){
+  if(moving||id===cur)return;moving=true;
+  var from=$('#'+cur),to=$('#'+id);
+  from.classList.add('leave');
+  setTimeout(function(){
+    from.hidden=true;from.classList.remove('leave');
+    to.hidden=false;to.classList.add('enter');
+    setTimeout(function(){to.classList.remove('enter')},450);
+    cur=id;moving=false;$('#bar').style.width=id==='s1'?'50%':'100%';
+    if(id==='s1')ui.focus();if(id==='s2')p1.focus();if(id==='sl')lu.focus();
+  },220);
+}
+var HINT1='Латиница, цифры и _, от 3 символов';
+var HINT2='Повторите пароль, чтобы исключить опечатки';
+
+/* Шаг 1: @username */
+var ui=$('#user'),uf=$('#uf'),umsg=$('#umsg'),next=$('#next');
+var timer,token=0,available=false;
+setMsg(umsg,'',HINT1);
+ui.addEventListener('input',function(){
+  ui.value=clean(ui.value);var v=ui.value;
+  clearTimeout(timer);available=false;next.hidden=true;
+  if(!v){setField(uf,'');setMsg(umsg,'',HINT1);return}
+  if(v.length<3){setField(uf,'');setMsg(umsg,'','Ещё минимум '+(3-v.length)+' симв.');return}
+  setField(uf,'load');setMsg(umsg,'','Проверяем имя…');
+  var t=++token;
+  timer=setTimeout(function(){
+    if(t!==token)return;
+    if(taken(v)){setField(uf,'err');setMsg(umsg,'err','Этот @username уже занят')}
+    else{setField(uf,'ok');setMsg(umsg,'ok','Имя доступно!');available=true;next.hidden=false}
+  },800);
+});
+function goNext(){if(!available)return;$('#chip').textContent='@'+ui.value;show('s2')}
+ui.addEventListener('keydown',function(e){if(e.key==='Enter')goNext()});
+next.addEventListener('click',goNext);
+$('#toLogin').addEventListener('click',function(){show('sl')});
+$('#toReg').addEventListener('click',function(){show('s1')});
+
+/* Шаг 2: пароль */
+var p1=$('#p1'),p2=$('#p2'),f1=$('#f1'),f2=$('#f2'),pmsg=$('#pmsg'),create=$('#create');
+function checkPw(){
+  var a=p1.value,b=p2.value,ok=false;
+  setField(f1,'');setField(f2,'');
+  if(!b)setMsg(pmsg,'',HINT2);
+  else if(a!==b){setField(f1,'err');setField(f2,'err');setMsg(pmsg,'err','Пароли не совпадают')}
+  else if(a.length<6){setField(f1,'err');setMsg(pmsg,'err','Пароль слишком короткий — минимум 6 символов')}
+  else{setField(f1,'ok');setField(f2,'ok');setMsg(pmsg,'ok','Пароли совпадают');ok=true}
+  create.disabled=!ok;
+}
+checkPw();
+p1.addEventListener('input',checkPw);p2.addEventListener('input',checkPw);
+p1.addEventListener('keydown',function(e){if(e.key==='Enter')p2.focus()});
+p2.addEventListener('keydown',function(e){if(e.key==='Enter'&&!create.disabled)create.click()});
+$('#back').addEventListener('click',function(){show('s1');next.hidden=false});
+create.addEventListener('click',function(){
+  create.classList.add('busy');create.disabled=true;
+  setTimeout(function(){
+    var n=ui.value;
+    if(taken(n)){create.classList.remove('busy');show('s1');setField(uf,'err');setMsg(umsg,'err','Этот @username уже занят');return}
+    db.users[n]={pass:p1.value,cards:[],tx:[],inf:false,bonus:!db.claimed,created:Date.now()};
+    if(!db.claimed)db.claimed=n; /* бонус выдан — на этом устройстве больше не будет */
+    save();create.classList.remove('busy');enter(n);
+  },900);
+});
+document.querySelectorAll('.eye').forEach(function(b){
+  b.addEventListener('click',function(){
+    var i=document.getElementById(b.getAttribute('data-for')),s=i.type==='password';
+    i.type=s?'text':'password';b.classList.toggle('on',s);
+    b.setAttribute('aria-label',s?'Скрыть пароль':'Показать пароль');
+  });
+});
+
+/* Вход в существующий аккаунт */
+var lu=$('#lu'),lp=$('#lp'),lbtn=$('#login'),lmsg=$('#lmsg');
+function lchk(){lbtn.disabled=!(lu.value&&lp.value);setField($('#lf1'),'');setField($('#lf2'),'');setMsg(lmsg,'','')}
+lu.addEventListener('input',function(){lu.value=clean(lu.value);lchk()});
+lp.addEventListener('input',lchk);
+function doLogin(){
+  if(lbtn.disabled)return;
+  var n=lu.value;
+  if(has(n)&&passOf(n)===lp.value){
+    lbtn.classList.add('busy');lbtn.disabled=true;
+    setTimeout(function(){lbtn.classList.remove('busy');enter(n)},700);
+  }else{setField($('#lf1'),'err');setField($('#lf2'),'err');setMsg(lmsg,'err','Неверный @username или пароль')}
+}
+lbtn.addEventListener('click',doLogin);
+lu.addEventListener('keydown',function(e){if(e.key==='Enter')lp.focus()});
+lp.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
+
+function resetAuth(){
+  ui.value=p1.value=p2.value=lu.value=lp.value='';
+  clearTimeout(timer);available=false;next.hidden=true;
+  setField(uf,'');setMsg(umsg,'',HINT1);checkPw();lchk();
+  document.querySelectorAll('.eye').forEach(function(b){document.getElementById(b.getAttribute('data-for')).type='password';b.classList.remove('on')});
+  ['s1','s2','sl'].forEach(function(id){$('#'+id).hidden=id!=='s1'});
+  cur='s1';moving=false;$('#bar').style.width='50%';
+}
+function enter(n,quiet){
+  me=n;try{localStorage.setItem('vtbank_session',n)}catch(e){}tab='cards';sel=0;mode='send';
+  $('#auth').hidden=true;$('#app').hidden=false;$('#nav').hidden=false;
+  window.scrollTo(0,0);render();resetAuth();if(!quiet)toast('Добро пожаловать, @'+n);
+}
+function logout(){me=null;try{localStorage.removeItem('vtbank_session')}catch(e){}$('#app').hidden=true;$('#nav').hidden=true;$('#auth').hidden=false;window.scrollTo(0,0)}
+
+/* ---------- приложение ---------- */
+var view=$('#view');
+function r2(n){return Math.round(n*100)/100}
+var CUR=[
+['RUB','Российский рубль','Россия',1,'₽','RU RUS Russia РФ'],['USD','Доллар США','США',80.45,'$','US USA America United States Америка'],['EUR','Евро','Еврозона',93.5,'€','EU Europe Eurozone Европа'],
+['UAH','Украинская гривна','Украина',1.95,'₴','UA UKR Ukraine'],['BYN','Белорусский рубль','Беларусь',27,'BYN','BY BLR Belarus Белоруссия'],['KZT','Казахстанский тенге','Казахстан',0.155,'₸','KZ KAZ Kazakhstan'],
+['GBP','Фунт стерлингов','Великобритания',106,'£','GB UK GBR Britain England United Kingdom Англия'],['PLN','Польский злотый','Польша',22,'PLN','PL POL Poland'],['CHF','Швейцарский франк','Швейцария',100,'CHF','CH CHE Switzerland'],
+['CNY','Китайский юань','Китай',11.3,'CNY','CN CHN China'],['JPY','Японская иена','Япония',0.54,'JPY','JP JPN Japan'],['TRY','Турецкая лира','Турция',1.9,'₺','TR TUR Turkey'],
+['GEL','Грузинский лари','Грузия',29.8,'GEL','GE GEO Georgia'],['AMD','Армянский драм','Армения',0.21,'AMD','AM ARM Armenia'],['AZN','Азербайджанский манат','Азербайджан',47.3,'AZN','AZ AZE Azerbaijan'],
+['UZS','Узбекский сум','Узбекистан',0.0066,'UZS','UZ UZB Uzbekistan'],['KGS','Киргизский сом','Кыргызстан',0.92,'KGS','KG KGZ Kyrgyzstan Киргизия'],['TJS','Таджикский сомони','Таджикистан',8.6,'TJS','TJ TJK Tajikistan'],
+['MDL','Молдавский лей','Молдова',4.8,'MDL','MD MDA Moldova'],['RON','Румынский лей','Румыния',18.4,'RON','RO ROU Romania'],['CZK','Чешская крона','Чехия',3.9,'CZK','CZ CZE Czechia Czech'],
+['HUF','Венгерский форинт','Венгрия',0.24,'HUF','HU HUN Hungary'],['SEK','Шведская крона','Швеция',8.5,'SEK','SE SWE Sweden'],['NOK','Норвежская крона','Норвегия',8,'NOK','NO NOR Norway'],
+['DKK','Датская крона','Дания',12.5,'DKK','DK DNK Denmark'],['RSD','Сербский динар','Сербия',0.8,'RSD','RS SRB Serbia'],['CAD','Канадский доллар','Канада',58,'CAD','CA CAN Canada'],
+['AUD','Австралийский доллар','Австралия',53,'AUD','AU AUS Australia'],['SGD','Сингапурский доллар','Сингапур',62,'SGD','SG SGP Singapore'],['INR','Индийская рупия','Индия',0.9,'₹','IN IND India'],
+['KRW','Южнокорейская вона','Южная Корея',0.057,'₩','KR KOR Korea'],['BRL','Бразильский реал','Бразилия',14.6,'BRL','BR BRA Brazil'],['MXN','Мексиканское песо','Мексика',4.4,'MXN','MX MEX Mexico'],
+['AED','Дирхам ОАЭ','ОАЭ',21.9,'AED','AE ARE UAE Emirates'],['ILS','Израильский шекель','Израиль',24.5,'₪','IL ISR Israel'],['THB','Тайский бат','Таиланд',2.5,'THB','TH THA Thailand'],
+['VND','Вьетнамский донг','Вьетнам',0.0032,'VND','VN VNM Vietnam'],['EGP','Египетский фунт','Египет',1.65,'EGP','EG EGY Egypt'],['ZAR','Южноафриканский рэнд','ЮАР',4.5,'ZAR','ZA ZAF Africa']
+];
+var CM={};CUR.forEach(function(x){CM[x[0]]={n:x[1],c:x[2],r:x[3],s:x[4]}});
+function SY(k){return (CM[k||'RUB']||CM.RUB).s}
+function cname(k){var m=CM[k]||CM.RUB;return m.n+' ('+m.c+')'}
+function exch(a,from,to){return r2(a*CM[from||'RUB'].r/CM[to||'RUB'].r)}
+function cmoney(c){return (c.inf?'∞':fmt(c.bal))+' '+SY(c.cur)}
+function setCur(i,to){
+  var u=U(),c=u.cards[i],from=c.cur,old=c.bal;
+  if(from===to)return;
+  if(!c.inf)c.bal=exch(c.bal,from,to);
+  c.cur=to;
+  if(!c.inf)u.tx.unshift({t:'conv',card:c.num.slice(-4),amt:old,from:from,res:c.bal,cur:to,ts:Date.now()});
+  save();
+  toast('Карта •••• '+c.num.slice(-4)+': '+(c.inf?'валюта — '+to:fmt(old)+' '+SY(from)+' → '+fmt(c.bal)+' '+SY(to)));
+  render();
+}
+var curIdx=0;
+function curBlock(u){
+  var h='<h3 class="h3">Валюта карт</h3><p class="sub">Нажмите на карту, чтобы сменить валюту — баланс пересчитается автоматически. Курсы фиксированные (демо): 1 USD = 80,45 ₽.</p>';
+  if(!u.cards.length)return h+'<p class="empty" style="margin-top:0">Выпустите карту, и здесь появится выбор её валюты.</p>';
+  return h+u.cards.map(function(c,i){
+    return '<button class="cr" data-cu="'+i+'" type="button"><span class="m"><b>Карта •••• '+c.num.slice(-4)+'</b><span>'+cname(c.cur)+'</span></span><span class="a">'+cmoney(c)+'</span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>';
+  }).join('');
+}
+function norm(t){return t.toLowerCase().replace(/ё/g,'е')}
+function hit(x,q){
+  var hay=norm(x[0]+' '+x[1]+' '+x[2]+' '+x[5]+' '+tl(x[1],'en')+' '+tl(x[2],'en')+' '+tl(x[1],lang)+' '+tl(x[2],lang));
+  if(q.indexOf(' ')>-1)return hay.indexOf(q)>-1;
+  return hay.split(/[^a-zа-я0-9]+/).some(function(w){return w.indexOf(q)===0});
+}
+function curList(q){
+  var cur=U().cards[curIdx].cur;q=norm(q.trim());
+  var list=CUR.filter(function(x){return !q||hit(x,q)});
+  return list.length?list.map(function(x){return '<button class="ci'+(x[0]===cur?' on':'')+'" data-c="'+x[0]+'" type="button"><span><b>'+x[1]+'</b> ('+x[2]+')</span><em>'+x[0]+'</em></button>'}).join('')
+    :'<p class="empty">Ничего не найдено. Попробуйте: RUB, USD, USA, RU, UA…</p>';
+}
+function openCur(i){
+  curIdx=i;var c=U().cards[i];
+  $('#sheet').innerHTML='<div class="grab"></div><h3 class="h3" style="margin-top:0">Валюта карты •••• '+c.num.slice(-4)+'</h3>'+
+    '<div class="field srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="cq" placeholder="RUB, USD, USA, RU, UA, Россия…" autocomplete="off" autocapitalize="none" spellcheck="false"></div>'+
+    '<div class="clist" id="clist">'+curList('')+'</div><button class="ghost" id="closeS" type="button">Закрыть</button>';
+  showSheet();$('#closeS').onclick=closeSheet;
+}
+function perks(u){var n=Date.now();return !!(u.inf||(u.paid&&(u.paid.forever||u.paid.until>n))||u.yt>n)}
+function cardLimit(u){return perks(u)?CARD_LIMIT_PLUS:CARD_LIMIT}
+function fee(u,amt){return perks(u)?0:r2(amt*COMMISSION)}
+function feeText(){return perks(U())?'Комиссия не взимается.':'Комиссия за перевод — '+String(COMMISSION*100).replace('.',',')+'%.'}
+function addMonths(ts,k){var d=new Date(ts);d.setMonth(d.getMonth()+k);return d.getTime()}
+function dstr(ts){return new Date(ts).toLocaleDateString(LOC[lang],{day:'numeric',month:'long',year:'numeric'})}
+function usd(n){return '$'+(n%1?n.toFixed(2).replace('.',lang==='en'?'.':','):n)}
+function planPrice(u,p){return u.discUsed?p.p:r2(p.p*(100-p.d)/100)}
+var planIdx=0,payIdx=0;
+function subBlock(u){
+  var n=Date.now(),pd=u.paid&&(u.paid.forever||u.paid.until>n),h='<h3 class="h3">Подписка</h3>';
+  if(u.inf)return h+'<p class="sub">У администратора все возможности включены навсегда.</p>';
+  h+='<div class="pbox rows"><div><span>VTBank Plus</span><b>'+(pd?(u.paid.forever?'навсегда':'до '+dstr(u.paid.until)):'не оформлена')+'</b></div>'+
+    '<div><span>YT-подписка</span><b>'+(u.yt>n?'до '+dstr(u.yt):'нет')+'</b></div>'+
+    '<div><span>Комиссия за переводы</span><b>'+(perks(u)?'нет':String(COMMISSION*100).replace('.',',')+'%')+'</b></div></div>';
+  return h+((u.paid&&u.paid.forever)?'':'<button class="btn" id="subBtn" type="button">'+(pd?'Продлить подписку':'Оформить подписку')+'</button>');
+}
+function adminBlock(u){
+  return u.inf?'<h3 class="h3">Админ-панель</h3><button class="cr" id="ytBtn" type="button"><span class="m"><b>Выдать YT</b><span>Подписка на месяц тем, кто снял видео про банк</span></span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>':'';
+}
+function plansHtml(u){
+  return PLANS.map(function(p,i){
+    var disc=!u.discUsed&&p.d>0;
+    return '<button class="ci" data-p="'+i+'" type="button"><span><b>'+p.n+'</b>'+(disc?'<small>скидка '+p.d+'% на первую покупку</small>':'')+'</span><span class="pr">'+usd(planPrice(u,p))+(disc?'<s>'+usd(p.p)+'</s>':'')+'</span></button>';
+  }).join('');
+}
+function openSub(){
+  var u=U();
+  $('#sheet').innerHTML='<div class="grab"></div><h3 class="h3" style="margin-top:0">VTBank Plus</h3><p class="sub" style="margin-bottom:14px">Без комиссии за переводы и выпуск до '+CARD_LIMIT_PLUS+' карт.'+(u.discUsed?'':' Скидки действуют только на первую покупку.')+'</p>'+plansHtml(u)+
+    '<p class="note">YT-подписку купить нельзя: её выдаёт администратор тем, кто снял видео про VTBank. Видео нужно снимать раз в месяц.</p><button class="ghost" id="closeS" type="button">Закрыть</button>';
+  showSheet();$('#closeS').onclick=closeSheet;
+}
+function payHint(){var u=U(),c=u.cards[payIdx];setMsg($('#pm'),'','Спишется: '+fmt(exch(planPrice(u,PLANS[planIdx]),'USD',c.cur))+' '+SY(c.cur))}
+function planPage(i){
+  var u=U(),p=PLANS[i];
+  if(!u.cards.length){toast('Сначала выпустите карту на вкладке «Карточки»','err');return}
+  planIdx=i;payIdx=0;
+  $('#sheet').innerHTML='<div class="grab"></div><h3 class="h3" style="margin-top:0">VTBank Plus — '+p.n+'</h3><p class="sub" style="margin-bottom:14px">К оплате: '+usd(planPrice(u,p))+'</p>'+
+    '<label for="pc">Оплатить картой</label><div class="field"><select id="pc">'+u.cards.map(function(c,j){return '<option value="'+j+'">•••• '+c.num.slice(-4)+' · '+cmoney(c)+'</option>'}).join('')+'</select></div><div class="msg" id="pm"></div>'+
+    '<button class="btn" id="pay" type="button">Оплатить</button><button class="ghost" id="planBack" type="button">Назад</button>';
+  payHint();
+}
+function pay(){
+  var u=U(),p=PLANS[planIdx],c=u.cards[payIdx],now=Date.now();
+  if(!c||(u.paid&&u.paid.forever))return;
+  var cost=exch(planPrice(u,p),'USD',c.cur);
+  if(!c.inf&&cost>c.bal)return setMsg($('#pm'),'err','Недостаточно средств на карте');
+  if(!c.inf)c.bal=r2(c.bal-cost);
+  if(p.m===0)u.paid={forever:true};
+  else{var base=u.paid&&u.paid.until>now?u.paid.until:now;u.paid={until:addMonths(base,p.m)}}
+  u.discUsed=true; /* скидка — только на первую покупку, любого тарифа */
+  u.tx.unshift({t:'sub',card:c.num.slice(-4),amt:cost,cur:c.cur,plan:p.n,ts:now});
+  save();closeSheet();toast('VTBank Plus подключён: '+p.n);render();
+}
+function ytList(q){
+  q=norm(q.trim().replace(/^@/,''));
+  var names=Object.keys(db.users).filter(function(n){return !db.users[n].inf&&(!q||n.indexOf(q)>-1)});
+  return names.length?names.map(function(n){var y=db.users[n].yt;return '<button class="ci" data-yt="'+n+'" type="button"><span><b>@'+n+'</b> ('+(y>Date.now()?'YT до '+dstr(y):'YT нет')+')</span><em>Выдать</em></button>'}).join('')
+    :'<p class="empty">Аккаунты не найдены.</p>';
+}
+function openYt(){
+  $('#sheet').innerHTML='<div class="grab"></div><h3 class="h3" style="margin-top:0">Выдать YT</h3><p class="sub" style="margin-bottom:14px">Выберите аккаунт — он получит YT-подписку на месяц.</p>'+
+    '<div class="field srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="yq" placeholder="Поиск по @username" autocomplete="off" autocapitalize="none" spellcheck="false"></div>'+
+    '<div class="clist" id="ylist">'+ytList('')+'</div><button class="ghost" id="closeS" type="button">Закрыть</button>';
+  showSheet();$('#closeS').onclick=closeSheet;
+}
+function grantYt(n){
+  if(!U().inf||!has(n)||db.users[n].inf)return;
+  var r=db.users[n],now=Date.now();
+  r.yt=addMonths(r.yt>now?r.yt:now,1);
+  r.tx.unshift({t:'yt',ts:now});save();
+  toast('YT выдана @'+n+' до '+dstr(r.yt));
+  $('#ylist').innerHTML=ytList($('#yq').value);
+}
+function find(num){
+  for(var n in db.users){var cs=db.users[n].cards;for(var i=0;i<cs.length;i++)if(cs[i].num===num)return{c:cs[i],u:db.users[n]}}
+  return null;
+}
+function face(c){
+  return '<span class="r"><b>VTBank</b><span class="chip"></span></span><span class="bl">'+cmoney(c)+'</span><span class="r"><span>•••• '+c.num.slice(-4)+'</span><span>'+c.exp+'</span></span>';
+}
+function rCards(){
+  var c=U().cards;
+  return '<h2>Карточки</h2><p class="sub">Нажмите на карту, чтобы увидеть реквизиты.</p><button class="add" id="add" type="button">+ Добавить карту</button>'+
+    (c.length?c.map(function(k,i){return '<button class="cc t'+(i%7)+(i===newIdx?' new':'')+'" data-i="'+i+'" type="button" aria-label="Карта •••• '+k.num.slice(-4)+'">'+face(k)+'</button>'}).join('')
+    :'<p class="empty">Здесь появятся ваши карты. Выпустите первую'+(U().bonus?' — на неё придёт стартовый капитал '+START_BONUS+' ₽':'')+'.</p>');
+}
+function inp(w,id,lab,ph,attrs,tail){
+  return '<div><label for="'+id+'">'+lab+'</label><div class="field" id="'+w+'"><input id="'+id+'" placeholder="'+ph+'" autocomplete="off" '+(attrs||'')+'>'+(tail||'')+'</div><div class="gap"></div></div>';
+}
+function selCard(lab){
+  return '<label for="sc">'+lab+'</label><div class="field"><select id="sc">'+U().cards.map(function(c,i){return '<option value="'+i+'"'+(i===sel?' selected':'')+'>•••• '+c.num.slice(-4)+' · '+cmoney(c)+'</option>'}).join('')+'</select></div><div class="gap"></div>';
+}
+function rSend(){
+  var n=U().cards.length,send=mode==='send';
+  var h='<h2>Перевести</h2><p class="sub">'+(send?'Деньги уйдут с выбранной карты на карту получателя. Если у получателя другая валюта, сумма пересчитается автоматически.':'Пополните свою карту с другой карты по её реквизитам. Сумма указывается в валюте вашей карты.')+' '+feeText()+'</p>'+
+    '<div class="seg"><button type="button" data-m="send" class="'+(send?'on':'')+'">Перевести</button><button type="button" data-m="pull" class="'+(send?'':'on')+'">Списать с другой карты</button></div>';
+  if(!n)return h+'<p class="empty">Сначала выпустите карту на вкладке «Карточки».</p>';
+  if(sel>=n)sel=0;
+  var num='inputmode="numeric" maxlength="19"',amt=inp('af','amt','Сумма','0','inputmode="decimal"','<span class="at" id="cs">'+SY(U().cards[sel].cur)+'</span>');
+  var end='<div class="msg" id="tmsg" aria-live="polite"></div><button class="btn" id="go" type="button">'+(send?'Перевести':'Списать и пополнить')+'</button>';
+  if(send)return h+selCard('С карты')+inp('nf','cn','Номер карты получателя','0000 0000 0000 0000',num)+amt+end;
+  return h+selCard('На мою карту')+inp('nf','cn','Номер карты (откуда)','0000 0000 0000 0000',num)+
+    '<div class="two">'+inp('xf','ex','Срок действия','ММ/ГГ','inputmode="numeric" maxlength="5"')+inp('vf','cv','CVV','123','type="password" inputmode="numeric" maxlength="3"')+'</div>'+
+    inp('wf','pw','Пароль карты','Пароль от карты','type="password" inputmode="numeric" maxlength="4"')+amt+end;
+}
+function row(x){
+  var ic={out:'<path d="M7 17L17 7M9 7h8v8"/>',in:'<path d="M17 7L7 17M15 17H7V9"/>',bonus:'<path d="M12 5v14M5 12h14"/>',card:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>',conv:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',sub:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/>',yt:'<path d="M6 4l13 8-13 8z"/>'}[x.t];
+  var ttl={card:'Выпуск карты •••• '+x.card,conv:'Смена валюты карты •••• '+x.card,bonus:'Стартовый капитал',sub:'Подписка VTBank Plus — '+x.plan,yt:'YT-подписка на месяц',
+    out:x.k?'Списание на карту •••• '+x.peer+' по реквизитам':'Перевод на карту •••• '+x.peer,
+    in:x.k?'Пополнение с карты •••• '+x.peer:'Поступление с карты •••• '+x.peer}[x.t];
+  var plus=x.t==='in'||x.t==='bonus',none=x.t==='card'||x.t==='conv'||x.t==='yt';
+  var sum=none?'':'<span class="a'+(plus?' in':'')+'">'+(plus?'+':'−')+fmt(x.amt)+' '+SY(x.cur)+'</span>';
+  var sub=when(x.ts)+(x.t==='card'||x.t==='yt'?'':x.t==='conv'?' · '+fmt(x.amt)+' '+SY(x.from)+' → '+fmt(x.res)+' '+SY(x.cur):' · карта •••• '+x.card)+(x.fee?' · комиссия '+fmt(x.fee)+' '+SY(x.cur):'');
+  return '<div class="tx"><span class="ti"><svg viewBox="0 0 24 24">'+ic+'</svg></span><span class="m"><b>'+ttl+'</b><span>'+sub+'</span></span>'+sum+'</div>';
+}
+function rHist(){
+  var t=U().tx;
+  return '<h2>История</h2><p class="sub">Все ваши операции</p>'+(t.length?t.map(row).join(''):'<p class="empty">Операций пока нет.</p>');
+}
+function rProf(){
+  var u=U();
+  return '<div class="ava">'+me.charAt(0).toUpperCase()+'</div><div class="pn">@'+me+'</div>'+
+    '<div class="pbox rows"><div><span>Статус</span><b>'+(u.inf?'Администратор':'Стандарт')+'</b></div><div><span>Дата регистрации</span><b>'+new Date(u.created).toLocaleDateString(LOC[lang])+'</b></div></div>'+
+    subBlock(u)+adminBlock(u)+curBlock(u)+langBlock()+'<button class="ghost danger" id="out" type="button">Выйти из аккаунта</button>';
+}
+function render(){
+  view.innerHTML=tab==='cards'?rCards():tab==='send'?rSend():tab==='hist'?rHist():rProf();
+  view.classList.remove('enter');void view.offsetWidth;view.classList.add('enter');
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===tab)});
+  newIdx=-1;
+}
+function mkCard(bal,inf){
+  var d=new Date(),num;
+  do{num='2200'+rnd(12)}while(find(num));
+  return {num:num,cvv:rnd(3),pwd:rnd(4),bal:bal,cur:'RUB',inf:!!inf,exp:('0'+(d.getMonth()+1)).slice(-2)+'/'+('0'+((d.getFullYear()+4)%100)).slice(-2)};
+}
+function addCard(){
+  var u=U();
+  if(u.cards.length>=cardLimit(u)){toast('Вы достигли лимита карт!','err');return}
+  var gift=u.bonus,c=mkCard(gift?START_BONUS:0,u.inf),t=Date.now(),tail=c.num.slice(-4);
+  u.cards.push(c);u.tx.unshift({t:'card',card:tail,ts:t});
+  if(gift){u.bonus=false;u.tx.unshift({t:'bonus',card:tail,amt:START_BONUS,cur:'RUB',ts:t})}
+  save();newIdx=u.cards.length-1;render();
+  if(gift)toast('Карта выпущена — стартовый капитал '+START_BONUS+' ₽ уже на ней');
+  var el=document.querySelector('.cc.new');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function openCard(i){
+  var c=U().cards[i];
+  $('#sheet').innerHTML='<div class="grab"></div><div class="cc t'+(i%7)+' flat">'+face(c)+'</div>'+
+    '<div class="rows"><div><span>Номер карты</span><b>'+spaced(c.num)+'</b></div><div><span>Срок действия</span><b>'+c.exp+'</b></div><div><span>CVV</span><b>'+c.cvv+'</b></div><div><span>Пароль карты</span><b>'+c.pwd+'</b></div><div><span>Валюта</span><b>'+cname(c.cur)+'</b></div><div><span>Владелец</span><b>@'+me+'</b></div></div>'+
+    '<button class="btn" id="sendFrom" type="button">Перевести деньги</button><button class="ghost" id="closeS" type="button">Закрыть</button>';
+  showSheet();
+  $('#sendFrom').onclick=function(){closeSheet();sel=i;mode='send';tab='send';render()};
+  $('#closeS').onclick=closeSheet;
+}
+function showSheet(){$('#bg').hidden=false;document.body.style.overflow='hidden'}
+function closeSheet(){$('#bg').hidden=true;document.body.style.overflow=''}
+$('#bg').addEventListener('click',function(e){if(e.target===this)closeSheet()});
+$('#sheet').addEventListener('input',function(e){
+  if(e.target.id==='cq')$('#clist').innerHTML=curList(e.target.value);
+  else if(e.target.id==='yq')$('#ylist').innerHTML=ytList(e.target.value);
+});
+$('#sheet').addEventListener('change',function(e){if(e.target.id==='pc'){payIdx=+e.target.value;payHint()}});
+$('#sheet').addEventListener('click',function(e){
+  var t=e.target,b;
+  if(b=t.closest('[data-c]')){closeSheet();setCur(curIdx,b.getAttribute('data-c'))}
+  else if(b=t.closest('[data-p]'))planPage(+b.getAttribute('data-p'));
+  else if(b=t.closest('[data-yt]'))grantYt(b.getAttribute('data-yt'));
+  else if(t.closest('#pay'))pay();
+  else if(t.closest('#planBack'))openSub();
+  else if(b=t.closest('[data-l]'))setLang(b.getAttribute('data-l'));
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet()});
+
+function bad(ids,t){ids.forEach(function(i){setField($(i),'err')});setMsg($('#tmsg'),'err',t)}
+function clearErr(){view.querySelectorAll('.field').forEach(function(f){setField(f,'')});setMsg($('#tmsg'),'','')}
+function move(a,au,b,bu,sa,sb,pull,fe){
+  fe=fe||0;
+  var now=Date.now(),ta=a.num.slice(-4),tb=b.num.slice(-4);
+  if(!a.inf)a.bal=r2(a.bal-sa-(pull?0:fe));
+  if(!b.inf)b.bal=r2(b.bal+sb-(pull?fe:0));
+  au.tx.unshift({t:'out',card:ta,peer:tb,amt:sa,cur:a.cur,k:pull,fee:pull?0:fe,ts:now});
+  bu.tx.unshift({t:'in',card:tb,peer:ta,amt:sb,cur:b.cur,k:pull,fee:pull?fe:0,ts:now});
+  save();
+  var d=a.cur!==b.cur,ft=fe?' (комиссия '+fmt(fe)+' '+SY(pull?b.cur:a.cur)+')':'';
+  toast(pull?'Карта •••• '+tb+' пополнена на '+fmt(sb)+' '+SY(b.cur)+(d?' (списано '+fmt(sa)+' '+SY(a.cur)+')':'')+ft
+    :'Переведено '+fmt(sa)+' '+SY(a.cur)+(d?' — получатель получит '+fmt(sb)+' '+SY(b.cur):'')+ft);
+  render();
+}
+function doSend(){
+  var u=U(),c=u.cards[sel],num=$('#cn').value.replace(/\s/g,''),amt=r2(parseFloat($('#amt').value.replace(',','.')));
+  clearErr();
+  if(num.length!==16)return bad(['#nf'],'Введите 16 цифр номера карты получателя');
+  var r=find(num);
+  if(!r)return bad(['#nf'],'Карта получателя не найдена');
+  if(r.c===c)return bad(['#nf'],'Нельзя перевести на ту же карту');
+  if(!(amt>0))return bad(['#af'],'Введите сумму больше нуля');
+  var fe=fee(u,amt);
+  if(!c.inf&&amt+fe>c.bal)return bad(['#af'],fe?'Недостаточно средств с учётом комиссии':'Недостаточно средств на карте');
+  var got=exch(amt,c.cur,r.c.cur);
+  if(!(got>0))return bad(['#af'],'Слишком маленькая сумма для этой валюты');
+  move(c,u,r.c,r.u,amt,got,'',fe);
+}
+function doPull(){
+  var u=U(),dest=u.cards[sel],num=$('#cn').value.replace(/\s/g,''),ex=$('#ex').value,cv=$('#cv').value,pw=$('#pw').value,amt=r2(parseFloat($('#amt').value.replace(',','.')));
+  clearErr();
+  if(num.length!==16)return bad(['#nf'],'Введите 16 цифр номера карты');
+  if(!/^\d\d\/\d\d$/.test(ex))return bad(['#xf'],'Срок действия — в формате ММ/ГГ');
+  if(cv.length!==3)return bad(['#vf'],'CVV — это 3 цифры');
+  if(!pw)return bad(['#wf'],'Введите пароль карты');
+  if(!(amt>0))return bad(['#af'],'Введите сумму больше нуля');
+  var r=find(num);
+  if(!r||r.c.exp!==ex||r.c.cvv!==cv||r.c.pwd!==pw)return bad(['#nf','#xf','#vf','#wf'],'Неверные реквизиты карты — перевод невозможен');
+  if(r.c===dest)return bad(['#nf'],'Нельзя списать деньги с той же карты');
+  var take=exch(amt,dest.cur,r.c.cur);
+  if(!(take>0))return bad(['#af'],'Слишком маленькая сумма для этой валюты');
+  if(!r.c.inf&&take>r.c.bal)return bad(['#af'],'На карте-источнике недостаточно средств');
+  move(r.c,r.u,dest,u,take,amt,'1',fee(u,amt));
+}
+function submit(){(mode==='send'?doSend:doPull)()}
+
+view.addEventListener('click',function(e){
+  var t=e.target,c=t.closest('[data-i]'),m=t.closest('[data-m]');
+  if(c)return openCard(+c.getAttribute('data-i'));
+  if(m){mode=m.getAttribute('data-m');render();return}
+  var cu=t.closest('[data-cu]');
+  if(cu)return openCur(+cu.getAttribute('data-cu'));
+  if(t.closest('#subBtn'))openSub();
+  else if(t.closest('#ytBtn'))openYt();
+  else if(t.closest('#langBtn'))openLang();
+  else if(t.closest('#add'))addCard();
+  else if(t.closest('#go'))submit();
+  else if(t.closest('#out'))logout();
+});
+view.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.id==='sc'){sel=+t.value;var cs=$('#cs');if(cs)cs.textContent=SY(U().cards[sel].cur)}
+});
+view.addEventListener('input',function(e){
+  var t=e.target,d=t.value.replace(/\D/g,'');
+  if(t.id==='cn')t.value=spaced(d.slice(0,16));
+  else if(t.id==='ex')t.value=d.length>2?d.slice(0,2)+'/'+d.slice(2,4):d.slice(0,4);
+  else if(t.id==='cv')t.value=d.slice(0,3);
+  else if(t.id==='pw')t.value=d.slice(0,4);
+  else if(t.id==='amt')t.value=t.value.replace(/[^0-9.,]/g,'');
+  else return;
+  clearErr();
+});
+view.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.tagName==='INPUT')submit()});
+$('#nav').addEventListener('click',function(e){
+  var b=e.target.closest('.nb');if(!b)return;
+  tab=b.getAttribute('data-t');render();window.scrollTo(0,0);
+});
+
+/* ---------- язык интерфейса ----------
+   Русский — исходный язык. Фразы из списка K заменяются на лету переводом из TR[язык] (тот же порядок).
+   Новый язык: добавьте массив в TR, строку в LANGS и код в LOC. Названия валют и стран — на английском. */
+var LANGS=[['ru','Русский','Россия'],['en','English','США'],['kk','Қазақша','Казахстан'],['uk','Українська','Украина'],['be','Беларуская','Беларусь'],['uz','Oʻzbekcha','Узбекистан']];
+var LOC={ru:'ru-RU',en:'en-US',kk:'kk-KZ',uk:'uk-UA',be:'be-BY',uz:'uz-UZ'};
+var lang='ru';try{lang=localStorage.getItem('vtbank_lang')||'ru'}catch(e){}
+if(!LOC[lang])lang='ru';
+var K=["Переключить тему", "Сменить тему", "Откройте счёт в VTBank", "Выберите @username — по нему вам смогут отправить перевод.", "Ваш @username", "Продолжить", "Уже есть аккаунт? ", "Войти", "Придумайте пароль", "Минимум 6 символов. Никому его не сообщайте.", "Пароль", "Показать пароль", "Скрыть пароль", "Повторите пароль", "Ещё раз тот же пароль", "Войти в VTBank", "С возвращением", "Войдите в свой аккаунт VTBank.", "Ваш пароль", "Нет аккаунта? ", "Зарегистрироваться", "Карточки", "Перевести", "История", "Профиль", "Латиница, цифры и _, от 3 символов", "Повторите пароль, чтобы исключить опечатки", "Ещё минимум ", " симв.", "Проверяем имя…", "Этот @username уже занят", "Имя доступно!", "Пароли не совпадают", "Пароль слишком короткий — минимум 6 символов", "Пароли совпадают", "Неверный @username или пароль", "Добро пожаловать, @", "Нажмите на карту, чтобы увидеть реквизиты.", "+ Добавить карту", "Здесь появятся ваши карты. Выпустите первую", " — на неё придёт стартовый капитал ", "Карта •••• ", "Деньги уйдут с выбранной карты на карту получателя. Если у получателя другая валюта, сумма пересчитается автоматически.", "Пополните свою карту с другой карты по её реквизитам. Сумма указывается в валюте вашей карты.", "Комиссия не взимается.", "Комиссия за перевод — ", "Списать с другой карты", "Сначала выпустите карту на вкладке «Карточки»", "С карты", "На мою карту", "Номер карты получателя", "Номер карты (откуда)", "Сумма", "Срок действия", "ММ/ГГ", "Пароль карты", "Пароль от карты", "Списать и пополнить", "Введите 16 цифр номера карты получателя", "Карта получателя не найдена", "Нельзя перевести на ту же карту", "Введите сумму больше нуля", "Недостаточно средств с учётом комиссии", "Недостаточно средств на карте", "Слишком маленькая сумма для этой валюты", "Введите 16 цифр номера карты", "Срок действия — в формате ММ/ГГ", "CVV — это 3 цифры", "Введите пароль карты", "Неверные реквизиты карты — перевод невозможен", "Нельзя списать деньги с той же карты", "На карте-источнике недостаточно средств", "Вы достигли лимита карт!", "Карта выпущена — стартовый капитал ", " ₽ уже на ней", " пополнена на ", " (списано ", "Переведено ", " — получатель получит ", " (комиссия ", "VTBank Plus подключён: ", "YT выдана @", " до ", "до ", "валюта — ", "Номер карты", "Валюта", "Владелец", "Перевести деньги", "Закрыть", "Все ваши операции", "Операций пока нет.", "Выпуск карты •••• ", "Смена валюты карты •••• ", "Стартовый капитал", "Подписка VTBank Plus — ", "YT-подписка на месяц", "Списание на карту •••• ", " по реквизитам", "Перевод на карту •••• ", "Пополнение с карты •••• ", "Поступление с карты •••• ", " · карта •••• ", " · комиссия ", "Статус", "Администратор", "Стандарт", "Дата регистрации", "Выйти из аккаунта", "Подписка", "У администратора все возможности включены навсегда.", "не оформлена", "навсегда", "YT-подписка", "нет", "Комиссия за переводы", "Продлить подписку", "Оформить подписку", "Админ-панель", "Выдать YT", "Подписка на месяц тем, кто снял видео про банк", "Выберите аккаунт — он получит YT-подписку на месяц.", "Поиск по @username", "Аккаунты не найдены.", "YT до ", "YT нет", "Выдать", "1 месяц", "3 месяца", "Полгода", "Год", "Навсегда", "скидка ", "% на первую покупку", "Без комиссии за переводы и выпуск до ", " карт.", " Скидки действуют только на первую покупку.", "YT-подписку купить нельзя: её выдаёт администратор тем, кто снял видео про VTBank. Видео нужно снимать раз в месяц.", "К оплате: ", "Оплатить картой", "Спишется: ", "Оплатить", "Назад", "Валюта карт", "Нажмите на карту, чтобы сменить валюту — баланс пересчитается автоматически. Курсы фиксированные (демо): 1 USD = 80,45 ₽.", "Выпустите карту, и здесь появится выбор её валюты.", "Валюта карты •••• ", "Ничего не найдено. Попробуйте: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Россия…", "Язык интерфейса"];
+CUR.forEach(function(x){K.push(x[1])});CUR.forEach(function(x){K.push(x[2])});
+var TR={"en": ["Switch theme", "Change theme", "Open an account in VTBank", "Pick a @username — people will use it to send you money.", "Your @username", "Continue", "Already have an account? ", "Log in", "Create a password", "At least 6 characters. Don’t share it with anyone.", "Password", "Show password", "Hide password", "Repeat password", "Same password again", "Log in to VTBank", "Welcome back", "Log in to your VTBank account.", "Your password", "No account yet? ", "Sign up", "Cards", "Transfer", "History", "Profile", "Latin letters, digits and _, 3+ characters", "Repeat the password to avoid typos", "At least ", " more characters", "Checking the name…", "This @username is already taken", "Name is available!", "Passwords don’t match", "Password is too short — at least 6 characters", "Passwords match", "Wrong @username or password", "Welcome, @", "Tap a card to see its details.", "+ Add card", "Your cards will appear here. Issue your first one", " — it will get a starting capital of ", "Card •••• ", "Money goes from the selected card to the recipient’s card. If the recipient uses another currency, the amount is converted automatically.", "Top up your card from another card using its details. The amount is in your card’s currency.", "No fee.", "Transfer fee — ", "Charge another card", "First issue a card in the “Cards” tab", "From card", "To my card", "Recipient’s card number", "Card number (source)", "Amount", "Expiry date", "MM/YY", "Card password", "Card password", "Charge and top up", "Enter the 16-digit recipient’s card number", "Recipient’s card not found", "You can’t transfer to the same card", "Enter an amount above zero", "Not enough funds including the fee", "Not enough funds on the card", "Amount is too small for this currency", "Enter the 16-digit card number", "Expiry date — in MM/YY format", "CVV is 3 digits", "Enter the card password", "Wrong card details — transfer is impossible", "You can’t charge the same card", "Not enough funds on the source card", "You’ve reached the card limit!", "Card issued — starting capital ", " ₽ is already on it", " topped up by ", " (charged ", "Transferred ", " — recipient gets ", " (fee ", "VTBank Plus activated: ", "YT granted to @", " until ", "until ", "currency — ", "Card number", "Currency", "Owner", "Transfer money", "Close", "All your operations", "No operations yet.", "Card issued •••• ", "Card currency changed •••• ", "Starting capital", "VTBank Plus subscription — ", "YT subscription for a month", "Charge to card •••• ", " by details", "Transfer to card •••• ", "Top-up from card •••• ", "Received from card •••• ", " · card •••• ", " · fee ", "Status", "Administrator", "Standard", "Registration date", "Log out", "Subscription", "The administrator has all features enabled forever.", "not active", "forever", "YT subscription", "no", "Transfer fee", "Extend subscription", "Get subscription", "Admin panel", "Grant YT", "A one-month subscription for those who made a video about the bank", "Pick an account — it will get a YT subscription for a month.", "Search by @username", "No accounts found.", "YT until ", "No YT", "Grant", "1 month", "3 months", "6 months", "1 year", "Forever", "discount ", "% on the first purchase", "No transfer fees and issue up to ", " cards.", " Discounts apply to the first purchase only.", "YT subscription can’t be bought: the administrator grants it to those who made a video about VTBank. A video is required once a month.", "To pay: ", "Pay with card", "Will be charged: ", "Pay", "Back", "Card currency", "Tap a card to change its currency — the balance is recalculated automatically. Fixed demo rates: 1 USD = 80.45 ₽.", "Issue a card and you’ll be able to pick its currency here.", "Card currency •••• ", "Nothing found. Try: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Russia…", "Interface language", "Russian Ruble", "US Dollar", "Euro", "Ukrainian Hryvnia", "Belarusian Ruble", "Kazakhstani Tenge", "Pound Sterling", "Polish Zloty", "Swiss Franc", "Chinese Yuan", "Japanese Yen", "Turkish Lira", "Georgian Lari", "Armenian Dram", "Azerbaijani Manat", "Uzbekistani Som", "Kyrgyzstani Som", "Tajikistani Somoni", "Moldovan Leu", "Romanian Leu", "Czech Koruna", "Hungarian Forint", "Swedish Krona", "Norwegian Krone", "Danish Krone", "Serbian Dinar", "Canadian Dollar", "Australian Dollar", "Singapore Dollar", "Indian Rupee", "South Korean Won", "Brazilian Real", "Mexican Peso", "UAE Dirham", "Israeli Shekel", "Thai Baht", "Vietnamese Dong", "Egyptian Pound", "South African Rand", "Russia", "USA", "Eurozone", "Ukraine", "Belarus", "Kazakhstan", "United Kingdom", "Poland", "Switzerland", "China", "Japan", "Turkey", "Georgia", "Armenia", "Azerbaijan", "Uzbekistan", "Kyrgyzstan", "Tajikistan", "Moldova", "Romania", "Czechia", "Hungary", "Sweden", "Norway", "Denmark", "Serbia", "Canada", "Australia", "Singapore", "India", "South Korea", "Brazil", "Mexico", "UAE", "Israel", "Thailand", "Vietnam", "Egypt", "South Africa"], "uk": ["Перемкнути тему", "Змінити тему", "Відкрийте рахунок у VTBank", "Оберіть @username — за ним вам зможуть надіслати переказ.", "Ваш @username", "Продовжити", "Вже є акаунт? ", "Увійти", "Придумайте пароль", "Мінімум 6 символів. Нікому його не повідомляйте.", "Пароль", "Показати пароль", "Сховати пароль", "Повторіть пароль", "Ще раз той самий пароль", "Увійти у VTBank", "З поверненням", "Увійдіть у свій акаунт VTBank.", "Ваш пароль", "Немає акаунта? ", "Зареєструватися", "Картки", "Переказ", "Історія", "Профіль", "Латиниця, цифри та _, від 3 символів", "Повторіть пароль, щоб уникнути помилок", "Ще мінімум ", " симв.", "Перевіряємо ім’я…", "Цей @username вже зайнятий", "Ім’я доступне!", "Паролі не збігаються", "Пароль закороткий — мінімум 6 символів", "Паролі збігаються", "Неправильний @username або пароль", "Ласкаво просимо, @", "Торкніться картки, щоб побачити реквізити.", "+ Додати картку", "Тут з’являться ваші картки. Випустіть першу", " — на неї надійде стартовий капітал ", "Картка •••• ", "Гроші підуть із вибраної картки на картку отримувача. Якщо в отримувача інша валюта, суму буде автоматично перераховано.", "Поповніть свою картку з іншої картки за її реквізитами. Сума вказується у валюті вашої картки.", "Комісія не стягується.", "Комісія за переказ — ", "Списати з іншої картки", "Спочатку випустіть картку у вкладці «Картки»", "З картки", "На мою картку", "Номер картки отримувача", "Номер картки (звідки)", "Сума", "Термін дії", "ММ/РР", "Пароль картки", "Пароль від картки", "Списати й поповнити", "Введіть 16 цифр номера картки отримувача", "Картку отримувача не знайдено", "Не можна переказати на ту саму картку", "Введіть суму більше нуля", "Недостатньо коштів з урахуванням комісії", "Недостатньо коштів на картці", "Надто мала сума для цієї валюти", "Введіть 16 цифр номера картки", "Термін дії — у форматі ММ/РР", "CVV — це 3 цифри", "Введіть пароль картки", "Невірні реквізити картки — переказ неможливий", "Не можна списати кошти з тієї самої картки", "На картці-джерелі недостатньо коштів", "Ви досягли ліміту карток!", "Картку випущено — стартовий капітал ", " ₽ уже на ній", " поповнено на ", " (списано ", "Переказано ", " — отримувач отримає ", " (комісія ", "VTBank Plus підключено: ", "YT видано @", " до ", "до ", "валюта — ", "Номер картки", "Валюта", "Власник", "Переказати гроші", "Закрити", "Усі ваші операції", "Операцій поки немає.", "Випуск картки •••• ", "Зміна валюти картки •••• ", "Стартовий капітал", "Підписка VTBank Plus — ", "YT-підписка на місяць", "Списання на картку •••• ", " за реквізитами", "Переказ на картку •••• ", "Поповнення з картки •••• ", "Надходження з картки •••• ", " · картка •••• ", " · комісія ", "Статус", "Адміністратор", "Стандарт", "Дата реєстрації", "Вийти з акаунта", "Підписка", "В адміністратора всі можливості ввімкнено назавжди.", "не оформлено", "назавжди", "YT-підписка", "ні", "Комісія за перекази", "Продовжити підписку", "Оформити підписку", "Адмін-панель", "Видати YT", "Підписка на місяць тим, хто зняв відео про банк", "Оберіть акаунт — він отримає YT-підписку на місяць.", "Пошук за @username", "Акаунти не знайдено.", "YT до ", "YT немає", "Видати", "1 місяць", "3 місяці", "Пів року", "Рік", "Назавжди", "знижка ", "% на першу покупку", "Без комісій за перекази та випуск до ", " карток.", " Знижки діють лише на першу покупку.", "YT-підписку купити не можна: її видає адміністратор тим, хто зняв відео про VTBank. Відео потрібно знімати раз на місяць.", "До сплати: ", "Сплатити карткою", "Спишеться: ", "Сплатити", "Назад", "Валюта карток", "Торкніться картки, щоб змінити валюту — баланс перерахується автоматично. Курси фіксовані (демо): 1 USD = 80,45 ₽.", "Випустіть картку, і тут з’явиться вибір її валюти.", "Валюта картки •••• ", "Нічого не знайдено. Спробуйте: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Росія…", "Мова інтерфейсу"], "kk": ["Тақырыпты ауыстыру", "Тақырыпты өзгерту", "VTBank-те шот ашыңыз", "@username таңдаңыз — сізге аударым осы арқылы жіберіледі.", "Сіздің @username", "Жалғастыру", "Аккаунтыңыз бар ма? ", "Кіру", "Құпия сөз ойлап табыңыз", "Кемінде 6 таңба. Оны ешкімге айтпаңыз.", "Құпия сөз", "Құпия сөзді көрсету", "Құпия сөзді жасыру", "Құпия сөзді қайталаңыз", "Дәл сол құпия сөзді қайта енгізіңіз", "VTBank-ке кіру", "Қайта қош келдіңіз", "VTBank аккаунтыңызға кіріңіз.", "Құпия сөзіңіз", "Аккаунтыңыз жоқ па? ", "Тіркелу", "Карталар", "Аударым", "Тарих", "Профиль", "Латын әріптері, сандар және _, кемінде 3 таңба", "Қателерден аулақ болу үшін құпия сөзді қайталаңыз", "Тағы кемінде ", " таңба", "Атау тексерілуде…", "Бұл @username бос емес", "Атау қолжетімді!", "Құпия сөздер сәйкес емес", "Құпия сөз тым қысқа — кемінде 6 таңба", "Құпия сөздер сәйкес келеді", "@username немесе құпия сөз қате", "Қош келдіңіз, @", "Деректемелерді көру үшін картаны басыңыз.", "+ Карта қосу", "Мұнда карталарыңыз пайда болады. Біріншісін шығарыңыз", " — оған бастапқы капитал түседі ", "Карта •••• ", "Ақша таңдалған картадан алушының картасына кетеді. Алушының валютасы басқа болса, сома автоматты түрде қайта есептеледі.", "Картаңызды басқа картадан оның деректемелері бойынша толықтырыңыз. Сома картаңыздың валютасымен көрсетіледі.", "Комиссия алынбайды.", "Аударым комиссиясы — ", "Басқа картадан ақша алу", "Алдымен «Карталар» қойындысында карта шығарыңыз", "Картадан", "Менің картама", "Алушының карта нөмірі", "Карта нөмірі (қайдан)", "Сома", "Жарамдылық мерзімі", "АА/ЖЖ", "Карта құпия сөзі", "Картаның құпия сөзі", "Есептен шығарып толықтыру", "Алушы картасының 16 санын енгізіңіз", "Алушының картасы табылмады", "Сол картаға аударуға болмайды", "Нөлден жоғары соманы енгізіңіз", "Комиссияны ескергенде қаражат жеткіліксіз", "Картада қаражат жеткіліксіз", "Бұл валюта үшін сома тым аз", "Карта нөмірінің 16 санын енгізіңіз", "Жарамдылық мерзімі — АА/ЖЖ форматында", "CVV — 3 сан", "Карта құпия сөзін енгізіңіз", "Карта деректемелері қате — аударым мүмкін емес", "Сол картадан ақша алуға болмайды", "Көз картада қаражат жеткіліксіз", "Сіз карта лимитіне жеттіңіз!", "Карта шығарылды — бастапқы капитал ", " ₽ картада тұр", " толықтырылды: ", " (есептен шығарылды ", "Аударылды ", " — алушы алады ", " (комиссия ", "VTBank Plus қосылды: ", "YT берілді @", ", мерзімі: ", "мерзімі: ", "валюта — ", "Карта нөмірі", "Валюта", "Иесі", "Ақша аудару", "Жабу", "Барлық операцияларыңыз", "Операциялар әлі жоқ.", "Карта шығару •••• ", "Карта валютасын ауыстыру •••• ", "Бастапқы капитал", "VTBank Plus жазылымы — ", "Бір айлық YT жазылымы", "Картаға есептен шығару •••• ", " деректемелер бойынша", "Картаға аударым •••• ", "Картадан толықтыру •••• ", "Картадан түсім •••• ", " · карта •••• ", " · комиссия ", "Мәртебе", "Әкімші", "Стандартты", "Тіркелген күні", "Аккаунттан шығу", "Жазылым", "Әкімшіде барлық мүмкіндіктер мәңгілікке қосулы.", "рәсімделмеген", "мәңгілікке", "YT жазылымы", "жоқ", "Аударым комиссиясы", "Жазылымды ұзарту", "Жазылымды рәсімдеу", "Әкімші панелі", "YT беру", "Банк туралы бейне түсірген адамдарға бір айлық жазылым", "Аккаунтты таңдаңыз — ол бір айға YT жазылымын алады.", "@username бойынша іздеу", "Аккаунттар табылмады.", "YT мерзімі: ", "YT жоқ", "Беру", "1 ай", "3 ай", "Жарты жыл", "Жыл", "Мәңгілікке", "жеңілдік ", "% алғашқы сатып алуға", "Аударым комиссиясыз және ", " картаға дейін шығару.", " Жеңілдіктер тек алғашқы сатып алуға қолданылады.", "YT жазылымын сатып алуға болмайды: оны банк туралы бейне түсірген адамдарға әкімші береді. Бейнені айына бір рет түсіру керек.", "Төлеуге: ", "Картамен төлеу", "Есептен шығарылады: ", "Төлеу", "Артқа", "Карта валютасы", "Валютасын өзгерту үшін картаны басыңыз — баланс автоматты түрде қайта есептеледі. Бекітілген бағамдар (демо): 1 USD = 80,45 ₽.", "Карта шығарыңыз, мұнда оның валютасын таңдау пайда болады.", "Карта валютасы •••• ", "Ештеңе табылмады. Мынаны көріңіз: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Ресей…", "Интерфейс тілі"], "be": ["Пераключыць тэму", "Змяніць тэму", "Адкрыйце рахунак у VTBank", "Абярыце @username — па ім вам змогуць адправіць пераклад.", "Ваш @username", "Працягнуць", "Ужо ёсць акаўнт? ", "Увайсці", "Прыдумайце пароль", "Мінімум 6 сімвалаў. Нікому яго не паведамляйце.", "Пароль", "Паказаць пароль", "Схаваць пароль", "Паўтарыце пароль", "Яшчэ раз той жа пароль", "Увайсці ў VTBank", "З вяртаннем", "Увайдзіце ў свой акаўнт VTBank.", "Ваш пароль", "Няма акаўнта? ", "Зарэгістравацца", "Карткі", "Пераклад", "Гісторыя", "Профіль", "Лацініца, лічбы і _, ад 3 сімвалаў", "Паўтарыце пароль, каб пазбегнуць памылак", "Яшчэ мінімум ", " сімв.", "Правяраем імя…", "Гэты @username ужо занят", "Імя даступнае!", "Паролі не супадаюць", "Пароль занадта кароткі — мінімум 6 сімвалаў", "Паролі супадаюць", "Няправільны @username або пароль", "Сардэчна запрашаем, @", "Націсніце на карту, каб убачыць рэквізіты.", "+ Дадаць карту", "Тут з’явяцца вашы карты. Выпусціце першую", " — на яе паступіць стартавы капітал ", "Картка •••• ", "Грошы пойдуць з абранай карты на карту атрымальніка. Калі ў атрымальніка іншая валюта, сума будзе перылічана аўтаматычна.", "Папоўніце сваю карту з іншай карты па яе рэквізітах. Сума ўказваецца ў валюце вашай карты.", "Камісія не спаганяецца.", "Камісія за пераклад — ", "Спісаць з іншай карты", "Спачатку выпусціце карту ва ўкладцы «Карткі»", "З карты", "На маю карту", "Нумар карты атрымальніка", "Нумар карты (адкуль)", "Сума", "Тэрмін дзеяння", "ММ/ГГ", "Пароль карты", "Пароль ад карты", "Спісаць і папоўніць", "Увядзіце 16 лічбаў нумара карты атрымальніка", "Карту атрымальніка не знойдзена", "Нельга пераказаць на тую ж карту", "Увядзіце суму больш за нуль", "Недастаткова сродкаў з улікам камісіі", "Недастаткова сродкаў на карце", "Сума занадта малая для гэтай валюты", "Увядзіце 16 лічбаў нумара карты", "Тэрмін дзеяння — у фармаце ММ/ГГ", "CVV — гэта 3 лічбы", "Увядзіце пароль карты", "Няправільныя рэквізіты карты — пераклад немагчымы", "Нельга спісаць грошы з той жа карты", "На карце-крыніцы недастаткова сродкаў", "Вы дасягнулі ліміту карт!", "Карту выпушчана — стартавы капітал ", " ₽ ужо на ёй", " папоўнена на ", " (спісана ", "Пераказана ", " — атрымальнік атрымае ", " (камісія ", "VTBank Plus падключаны: ", "YT выдана @", " да ", "да ", "валюта — ", "Нумар карты", "Валюта", "Уладальнік", "Пераказаць грошы", "Закрыць", "Усе вашы аперацыі", "Аперацый пакуль няма.", "Выпуск карты •••• ", "Змена валюты карты •••• ", "Стартавы капітал", "Падпіска VTBank Plus — ", "YT-падпіска на месяц", "Спісанне на карту •••• ", " па рэквізітах", "Пераклад на карту •••• ", "Папаўненне з карты •••• ", "Паступленне з карты •••• ", " · карта •••• ", " · камісія ", "Статус", "Адміністратар", "Стандарт", "Дата рэгістрацыі", "Выйсці з акаўнта", "Падпіска", "У адміністратара ўсе магчымасці ўключаны назаўсёды.", "не аформлена", "назаўсёды", "YT-падпіска", "няма", "Камісія за пераклады", "Падоўжыць падпіску", "Аформіць падпіску", "Адмін-панэль", "Выдаць YT", "Падпіска на месяц тым, хто здымаў відэа пра банк", "Абярыце акаўнт — ён атрымае YT-падпіску на месяц.", "Пошук па @username", "Акаўнты не знойдзены.", "YT да ", "YT няма", "Выдаць", "1 месяц", "3 месяцы", "Паўгода", "Год", "Назаўсёды", "зніжка ", "% на першую пакупку", "Без камісій за пераклады і выпуск да ", " карт.", " Зніжкі дзейнічаюць толькі на першую пакупку.", "YT-падпіску купіць нельга: яе выдае адміністратар тым, хто зняў відэа пра VTBank. Відэа трэба здымаць раз на месяц.", "Да аплаты: ", "Аплаціць картай", "Спішацца: ", "Аплаціць", "Назад", "Валюта карт", "Націсніце на карту, каб змяніць валюту — баланс пералічыцца аўтаматычна. Курсы фіксаваныя (дэма): 1 USD = 80,45 ₽.", "Выпусціце карту, і тут з’явіцца выбар яе валюты.", "Валюта карты •••• ", "Нічога не знойдзена. Паспрабуйце: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Расія…", "Мова інтэрфейсу"], "uz": ["Mavzuni almashtirish", "Mavzuni oʻzgartirish", "VTBankda hisob oching", "@username tanlang — u orqali sizga pul oʻtkazishadi.", "Sizning @username", "Davom etish", "Akkauntingiz bormi? ", "Kirish", "Parol oʻylab toping", "Kamida 6 ta belgi. Uni hech kimga aytmang.", "Parol", "Parolni koʻrsatish", "Parolni yashirish", "Parolni takrorlang", "Xuddi shu parolni yana kiriting", "VTBankka kirish", "Xush kelibsiz", "VTBank akkauntingizga kiring.", "Parolingiz", "Akkauntingiz yoʻqmi? ", "Roʻyxatdan oʻtish", "Kartalar", "Oʻtkazma", "Tarix", "Profil", "Lotin harflari, raqamlar va _, kamida 3 ta belgi", "Xatolarni oldini olish uchun parolni takrorlang", "Yana kamida ", " ta belgi", "Nom tekshirilmoqda…", "Bu @username band", "Nom mavjud!", "Parollar mos kelmadi", "Parol juda qisqa — kamida 6 ta belgi", "Parollar mos keldi", "@username yoki parol notoʻgʻri", "Xush kelibsiz, @", "Rekvizitlarni koʻrish uchun kartani bosing.", "+ Karta qoʻshish", "Bu yerda kartalaringiz paydo boʻladi. Birinchisini chiqaring", " — unga boshlangʻich kapital tushadi ", "Karta •••• ", "Pul tanlangan kartadan oluvchining kartasiga ketadi. Oluvchining valyutasi boshqa boʻlsa, summa avtomatik qayta hisoblanadi.", "Kartangizni boshqa kartadan uning rekvizitlari boʻyicha toʻldiring. Summa kartangiz valyutasida kiritiladi.", "Komissiya olinmaydi.", "Oʻtkazma komissiyasi — ", "Boshqa kartadan yechib olish", "Avval «Kartalar» boʻlimida karta chiqaring", "Kartadan", "Mening kartamga", "Oluvchi karta raqami", "Karta raqami (qayerdan)", "Summa", "Amal qilish muddati", "OO/YY", "Karta paroli", "Kartaning paroli", "Yechib olish va toʻldirish", "Oluvchi kartasining 16 raqamini kiriting", "Oluvchining kartasi topilmadi", "Xuddi shu kartaga oʻtkazib boʻlmaydi", "Noldan katta summa kiriting", "Komissiyani hisobga olganda mablagʻ yetarli emas", "Kartada mablagʻ yetarli emas", "Bu valyuta uchun summa juda kichik", "Karta raqamining 16 raqamini kiriting", "Amal qilish muddati — OO/YY formatida", "CVV — 3 ta raqam", "Karta parolini kiriting", "Karta rekvizitlari notoʻgʻri — oʻtkazma mumkin emas", "Xuddi shu kartadan yechib boʻlmaydi", "Manba kartada mablagʻ yetarli emas", "Siz kartalar limitiga yetdingiz!", "Karta chiqarildi — boshlangʻich kapital ", " ₽ allaqachon kartada", " toʻldirildi: ", " (yechildi ", "Oʻtkazildi ", " — oluvchi oladi ", " (komissiya ", "VTBank Plus ulandi: ", "YT berildi @", ", muddati: ", "muddati: ", "valyuta — ", "Karta raqami", "Valyuta", "Egasi", "Pul oʻtkazish", "Yopish", "Barcha operatsiyalaringiz", "Hozircha operatsiyalar yoʻq.", "Karta chiqarish •••• ", "Karta valyutasini almashtirish •••• ", "Boshlangʻich kapital", "VTBank Plus obunasi — ", "Bir oylik YT obunasi", "Kartaga yechib olish •••• ", " rekvizitlar boʻyicha", "Kartaga oʻtkazma •••• ", "Kartadan toʻldirish •••• ", "Kartadan tushum •••• ", " · karta •••• ", " · komissiya ", "Holat", "Administrator", "Standart", "Roʻyxatdan oʻtgan sana", "Akkauntdan chiqish", "Obuna", "Administratorda barcha imkoniyatlar abadiy yoqilgan.", "rasmiylashtirilmagan", "abadiy", "YT obunasi", "yoʻq", "Oʻtkazma komissiyasi", "Obunani uzaytirish", "Obunani rasmiylashtirish", "Admin paneli", "YT berish", "Bank haqida video olganlarga bir oylik obuna", "Akkauntni tanlang — u bir oylik YT obunasini oladi.", "@username boʻyicha qidirish", "Akkauntlar topilmadi.", "YT muddati: ", "YT yoʻq", "Berish", "1 oy", "3 oy", "Yarim yil", "Yil", "Abadiy", "chegirma ", "% birinchi xaridga", "Oʻtkazmalar komissiyasiz va ", " tagacha karta chiqarish.", " Chegirmalar faqat birinchi xaridga amal qiladi.", "YT obunasini sotib olib boʻlmaydi: uni VTBank haqida video olganlarga administrator beradi. Videoni oyiga bir marta olish kerak.", "Toʻlov: ", "Karta bilan toʻlash", "Yechiladi: ", "Toʻlash", "Orqaga", "Karta valyutasi", "Valyutani oʻzgartirish uchun kartani bosing — balans avtomatik qayta hisoblanadi. Kurslar belgilangan (demo): 1 USD = 80,45 ₽.", "Karta chiqaring, shunda bu yerda uning valyutasini tanlash paydo boʻladi.", "Karta valyutasi •••• ", "Hech narsa topilmadi. Mana buni sinab koʻring: RUB, USD, USA, RU, UA…", "RUB, USD, USA, RU, UA, Rossiya…", "Interfeys tili"]};
+var RE=new RegExp(K.map(function(k,i){return i}).sort(function(a,b){return K[b].length-K[a].length}).map(function(i){return K[i].replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}).join('|'),'g');
+var DC={};
+function dict(l){
+  if(DC[l])return DC[l];
+  var m={},t=TR[l]||[],e=TR.en;
+  K.forEach(function(k,i){m[k]=t[i]!==undefined?t[i]:e[i]});
+  return DC[l]=m;
+}
+function tl(s,l){if(l==='ru')return s;var d=dict(l);return s.replace(RE,function(m){var v=d[m];return v===undefined?m:v})}
+var rec=new WeakMap(),ATTR=['placeholder','aria-label','title'];
+function trNode(n){var r=rec.get(n),src=r&&n.data===r.out?r.src:n.data,out=tl(src,lang);if(out!==n.data)n.data=out;rec.set(n,{src:src,out:out})}
+function trEl(e){
+  ATTR.forEach(function(a){
+    if(!e.hasAttribute(a))return;
+    var o=e.__o||(e.__o={}),r=o[a],cur=e.getAttribute(a),src=r&&cur===r.out?r.src:cur,out=tl(src,lang);
+    if(out!==cur)e.setAttribute(a,out);
+    o[a]={src:src,out:out};
+  });
+}
+function walk(n){
+  if(n.nodeType===3)return trNode(n);
+  if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE')return;
+  trEl(n);
+  for(var c=n.firstChild;c;c=c.nextSibling)walk(c);
+}
+new MutationObserver(function(ms){
+  ms.forEach(function(m){
+    if(m.type==='childList')m.addedNodes.forEach(walk);
+    else if(m.type==='characterData')trNode(m.target);
+    else trEl(m.target);
+  });
+}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTR});
+function langOf(l){return LANGS.filter(function(x){return x[0]===l})[0]}
+function langBlock(){
+  var L=langOf(lang);
+  return '<h3 class="h3">Язык интерфейса</h3><button class="cr" id="langBtn" type="button"><span class="m"><b>'+L[1]+'</b><span>'+L[2]+'</span></span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>';
+}
+function openLang(){
+  $('#sheet').innerHTML='<div class="grab"></div><h3 class="h3" style="margin-top:0">Язык интерфейса</h3>'+
+    LANGS.map(function(L){return '<button class="ci'+(L[0]===lang?' on':'')+'" data-l="'+L[0]+'" type="button"><span><b>'+L[1]+'</b> ('+L[2]+')</span><em>'+L[0].toUpperCase()+'</em></button>'}).join('')+
+    '<button class="ghost" id="closeS" type="button">Закрыть</button>';
+  showSheet();$('#closeS').onclick=closeSheet;
+}
+function setLang(l){
+  closeSheet();lang=l;try{localStorage.setItem('vtbank_lang',l)}catch(e){}
+  document.documentElement.setAttribute('lang',l);walk(document.body);if(me)render();
+}
+document.documentElement.setAttribute('lang',lang);
+if(lang!=='ru')walk(document.body);
+
+if(!db.bonusFix){
+  var first=Object.keys(db.users).filter(function(n){return !Object.prototype.hasOwnProperty.call(FIXED,n)}).sort(function(a,b){return db.users[a].created-db.users[b].created})[0];
+  if(first){
+    var f=db.users[first],fc=f.cards[0];
+    if(!f.tx.some(function(x){return x.t==='bonus'})){
+      if(fc){var ba=exch(START_BONUS,'RUB',fc.cur);fc.bal=r2(fc.bal+ba);f.tx.unshift({t:'bonus',card:fc.num.slice(-4),amt:ba,cur:fc.cur,ts:Date.now()});f.bonus=false}
+      else f.bonus=true;
+    }
+    db.claimed=first;
+  }
+  db.bonusFix=true;save();
+}
+
+/* ---------- автовход: возвращаемся в тот же аккаунт ---------- */
+var sess=null;try{sess=localStorage.getItem('vtbank_session')}catch(e){}
+if(sess&&has(sess))enter(sess,true);
+})();
+</script>
+</body>
+</html>
